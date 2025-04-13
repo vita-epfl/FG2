@@ -1,0 +1,3 @@
+This folder stores the model overview figure and generated figures for experiments and evaluations.
+
+The .gitkeep file ensures the folder is tracked by Git even when it has no other files.
