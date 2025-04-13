@@ -1,6 +1,7 @@
 # [CVPR'25] FG²: Fine-Grained Cross-View Localization by Fine-Grained Feature Matching
-[[`Arxiv`](https://arxiv.org/abs/2303.05915)[[`BibTeX`](#citation)]
+[[`Arxiv`](https://arxiv.org/abs/2303.05915)][[`BibTeX`](#citation)]
 
+![](figures/method.png)
 
 
 
