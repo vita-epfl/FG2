@@ -18,8 +18,8 @@ The trained models are available at https://drive.google.com/drive/folders/1WUVi
 - [x] Initial project setup and repo structure
 - [x] Add license and basic README documentation
 - [ ] Add installation instructions
-- [x] Add model training scripts
-- [ ] Add model testing scripts
+- [ ] Add model training scripts
+- [x] Add model testing scripts
 - [x] Include pretrained models
 - [ ] Add code for visualization
 
