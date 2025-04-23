@@ -76,6 +76,11 @@ python vigor_eval.py --area samearea -b 24 --random_orientation True --first_run
 
 ---
 
+## Acknowledgements
+
+The implementation of Procrustes analysis and RANSAC for 3DoF pose estimation in this project is adapted from the 6DoF pose estimation framework provided by [Mickey](https://nianticlabs.github.io/mickey/).  
+Many thanks to the authors for their outstanding work and for sharing it with the community!
+
 ## Citation
 ```bibtex
 @article{xia2025fg,
