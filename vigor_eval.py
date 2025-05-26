@@ -8,6 +8,7 @@ import torch.nn as nn
 import numpy as np
 import math
 import random
+import time
 
 from dataloaders.dataloader_vigor import VIGORDataset, transform_grd, transform_sat
 from models.model_vigor import CVM
@@ -129,6 +130,7 @@ CVM_model.to(device)
 metric_coord_sat_B = create_metric_grid(grid_size_h, sat_bev_res, batch_size).to(device)
 metric_coord_grd_B = create_metric_grid(grid_size_h, grd_bev_res, batch_size).to(device)
 
+total_time = 0 # measure method runtime
 CVM_model.eval()
 with torch.no_grad():
     translation_error = []
@@ -138,6 +140,7 @@ with torch.no_grad():
 
     for i, data in enumerate(test_dataloader, 0):
         grd, sat, tgt, Rgt, city = data
+        
         B, _, sat_size, _ = sat.size()
         
         grd = grd.to(device)
@@ -145,6 +148,7 @@ with torch.no_grad():
         tgt = tgt.to(device) 
         Rgt = Rgt.to(device)
 
+        start_time = time.time()
         grd_feature = shared_feature_extractor(grd)
         sat_feature = shared_feature_extractor(sat)
 
@@ -171,7 +175,8 @@ with torch.no_grad():
             
             
             R, t, ok_rank = weighted_procrustes_2d(X, Y, use_weights=True, use_mask=True, w=weights) 
-    
+        
+        total_time += time.time() - start_time
         if t is None:
             print('t is None')
             yaw_pred_list.append('None')
@@ -218,7 +223,11 @@ with torch.no_grad():
     
     yaw_error_mean = np.mean(yaw_error)    
     yaw_error_median = np.median(yaw_error) 
+    
 
+    print('total time', total_time)
+    print('seconds per image', total_time / len(translation_error))
+    print('---------------------------------------------')
     print('translation_error_mean', translation_error_mean)
     print('translation_error_median', translation_error_median)
 
