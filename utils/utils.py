@@ -1,6 +1,11 @@
 import torch
 import torch.nn.functional as F
 import numpy as np
+import math
+
+def save_metric(file_path, value, label, epoch):
+    with open(file_path, 'ab') as f:
+        np.savetxt(f, [value], fmt='%4f', header=f'{label}:', comments=f'{epoch}_')   
 
 def desc_l2norm(desc: torch.Tensor) -> torch.Tensor:
     """
@@ -43,6 +48,18 @@ def create_metric_grid(grid_size, res, batch_size):
     metric_x, metric_y = torch.tensor(metric_x).flatten().unsqueeze(0).unsqueeze(-1), torch.tensor(metric_y).flatten().unsqueeze(0).unsqueeze(-1)
     metric_coord = torch.cat((metric_x, metric_y), -1).float()
     return metric_coord.repeat(batch_size, 1, 1)
+
+def create_grid_indices(rows, cols):
+    """Create homogeneous grid indices centered at (0,0)."""
+    row_vals = np.linspace(-(rows - 1) / 2, (rows - 1) / 2, rows)
+    col_vals = np.linspace(-(cols - 1) / 2, (cols - 1) / 2, cols)
+    row_grid, col_grid = np.meshgrid(row_vals, col_vals, indexing='ij')
+
+    row_tensor = torch.tensor(row_grid, dtype=torch.float32).flatten().unsqueeze(0).unsqueeze(-1)
+    col_tensor = torch.tensor(col_grid, dtype=torch.float32).flatten().unsqueeze(0).unsqueeze(-1)
+    ones = torch.ones_like(col_tensor)
+
+    return torch.cat((row_tensor, col_tensor, ones), dim=-1)
     
 def soft_inlier_counting_bev(X0, X1, R, t, th=50):
     """
