@@ -61,6 +61,12 @@ python vigor_eval.py --area samearea -b 24 --random_orientation True --first_run
 python vigor_eval.py --area samearea -b 24 --random_orientation True --first_run False
 ```
 
+### 🔍 Visualize Matched Cross-View Correspondences
+--idx 0: Selects the sample index. Replace 0 with the index you want to visualize.
+```bash
+python vigor_qualitative_results.py --area samearea --idx 0
+```
+
 📌 **Note:** Ensure dataset paths are correctly set in `config.ini`.
 
 ---
@@ -91,7 +97,7 @@ python vigor_eval.py --area samearea -b 24 --random_orientation True
 - [x] Evaluation pipeline
 - [x] Pretrained checkpoints
 - [x] Training scripts
-- [ ] Visualization tools
+- [x] Visualization tools
 
 ---
 
