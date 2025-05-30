@@ -188,5 +188,5 @@ class CVM(nn.Module):
         matching_score = couplings[:, :-1, :-1]
 
         
-        return matching_score, matching_score_original
+        return matching_score, matching_score_original, height_index
 

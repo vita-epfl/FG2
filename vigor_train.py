@@ -152,7 +152,7 @@ for epoch in range(epoch_to_resume, 25):
         with torch.no_grad():
             grd_feat = shared_feature_extractor(grd)
             sat_feat = shared_feature_extractor(sat)
-        matching_score, score_orig = CVM_model(grd_feat, sat_feat)
+        matching_score, score_orig, _ = CVM_model(grd_feat, sat_feat)
 
         _, num_kpts_sat, num_kpts_grd = matching_score.shape
         matches_flat = matching_score.flatten(1)
@@ -214,7 +214,7 @@ for epoch in range(epoch_to_resume, 25):
 
             grd_feat = shared_feature_extractor(grd)
             sat_feat = shared_feature_extractor(sat)
-            matching_score, _ = CVM_model(grd_feat, sat_feat)
+            matching_score, _, _ = CVM_model(grd_feat, sat_feat)
 
             matches_flat = matching_score.flatten(1)
             batch_idx = torch.arange(B).view(B, 1).repeat(1, num_samples_matches).reshape(B, num_samples_matches)

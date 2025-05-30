@@ -152,7 +152,7 @@ with torch.no_grad():
         grd_feature = shared_feature_extractor(grd)
         sat_feature = shared_feature_extractor(sat)
 
-        matching_score, matching_score_original = CVM_model(grd_feature, sat_feature)
+        matching_score, matching_score_original, _ = CVM_model(grd_feature, sat_feature)
     
         B, num_kpts_sat, num_kpts_grd = matching_score.shape
 
