@@ -1,5 +1,5 @@
 # [CVPR'25] FG²: Fine-Grained Cross-View Localization by Fine-Grained Feature Matching
-[[`Arxiv`](https://arxiv.org/abs/2503.18725)][[`BibTeX`](#citation)]
+[[`Arxiv`](https://arxiv.org/abs/2503.18725)][[`Poster`](https://drive.google.com/file/d/1lEj-oQXmnDtGhsJGH4HzwONJudt3YLP2/view?usp=sharing)][[`Video`](https://www.youtube.com/watch?v=GStVKsoLDl4)][[`BibTeX`](#citation)]
 
 ![](figures/method.png)
 
@@ -65,13 +65,32 @@ python vigor_eval.py --area samearea -b 24 --random_orientation True --first_run
 
 ---
 
+### 🚀 Training
+
+**Knwon orientation**:
+
+Training on the **same-area** training set with known orientation (use `--area crossarea` if you wish to train on **cross-area** training set):
+
+```bash
+python vigor_eval.py --area samearea -b 24 --random_orientation False 
+```
+
+**Unknwon orientation**:
+
+📌 **Note:** If you wish to train a model to estimate orientation first (see details about two-step inference in our paper), use a large `beta` value, for example, `beta=100` in `config.ini`.
+
+```bash
+python vigor_eval.py --area samearea -b 24 --random_orientation True 
+```
+
+
 
 ## ✅ To-Do
 
 - [x] Initial repo structure
 - [x] Evaluation pipeline
 - [x] Pretrained checkpoints
-- [ ] Training scripts
+- [x] Training scripts
 - [ ] Visualization tools
 
 ---
