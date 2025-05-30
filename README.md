@@ -31,7 +31,7 @@ pip install "numpy<2"
 ---
 
 
-## 🚀 Evaluation
+## 📊 Evaluation
 
 Run evaluation on the **same-area** test set with known orientation (use `--area crossarea` if you wish to evaluate on **cross-area** test set):
 
@@ -65,7 +65,7 @@ python vigor_eval.py --area samearea -b 24 --random_orientation True --first_run
 
 ---
 
-### 🚀 Training
+## 🚀 Training
 
 **Knwon orientation**:
 
