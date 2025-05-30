@@ -137,7 +137,7 @@ metric_coord4loss = create_metric_grid(grid_size_h, grd_bev_res, 1).to(device)
 grd_indices_b = create_grid_indices(grd_bev_res, grd_bev_res).to(device)
 sat_indices_b = create_grid_indices(sat_bev_res, sat_bev_res).to(device)
 
-for epoch in range(epoch_to_resume, 100):
+for epoch in range(epoch_to_resume, 25):
     CVM_model.train()
     running_loss = 0.0
 
