@@ -30,7 +30,6 @@ class CVM(nn.Module):
 
         self.grd_bev_res = grd_bev_res
         self.sat_bev_res = sat_bev_res
-        self.num_col = sat_bev_res
 
 
         bn = True

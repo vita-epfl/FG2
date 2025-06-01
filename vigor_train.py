@@ -75,16 +75,6 @@ torch.use_deterministic_algorithms(mode=True, warn_only=True)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 "The device is: {}".format(device)
 
-seed = 0
-torch.manual_seed(seed)
-np.random.seed(seed)
-random.seed(seed)
-torch.manual_seed(seed)
-torch.cuda.manual_seed_all(seed)
-torch.backends.cudnn.benchmark = False
-torch.backends.cudnn.deterministic = True
-torch.use_deterministic_algorithms(mode=True, warn_only=True)
-
 
 vigor = VIGORDataset(root=dataset_root, label_root=label_root, split=area, train=True, \
                      transform=(transform_grd, transform_sat), random_orientation=random_orientation, \
