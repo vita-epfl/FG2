@@ -61,6 +61,12 @@ python vigor_eval.py --area samearea -b 24 --random_orientation True --first_run
 python vigor_eval.py --area samearea -b 24 --random_orientation True --first_run False
 ```
 
+### 🔍 Visualize Matched Cross-View Correspondences
+--idx 0: Selects the sample index. Replace 0 with the index you want to visualize.
+```bash
+python vigor_qualitative_results.py --area samearea --idx 0
+```
+
 📌 **Note:** Ensure dataset paths are correctly set in `config.ini`.
 
 ---
@@ -72,7 +78,7 @@ python vigor_eval.py --area samearea -b 24 --random_orientation True --first_run
 Training on the **same-area** training set with known orientation (use `--area crossarea` if you wish to train on **cross-area** training set):
 
 ```bash
-python vigor_eval.py --area samearea -b 24 --random_orientation False 
+python vigor_train.py --area samearea -b 24 --random_orientation False 
 ```
 
 **Unknwon orientation**:
@@ -80,7 +86,7 @@ python vigor_eval.py --area samearea -b 24 --random_orientation False
 📌 **Note:** If you wish to train a model to estimate orientation first (see details about two-step inference in our paper), use a large `beta` value, for example, `beta=100` in `config.ini`.
 
 ```bash
-python vigor_eval.py --area samearea -b 24 --random_orientation True 
+python vigor_train.py --area samearea -b 24 --random_orientation True 
 ```
 
 
@@ -91,7 +97,7 @@ python vigor_eval.py --area samearea -b 24 --random_orientation True
 - [x] Evaluation pipeline
 - [x] Pretrained checkpoints
 - [x] Training scripts
-- [ ] Visualization tools
+- [x] Visualization tools
 
 ---
 
