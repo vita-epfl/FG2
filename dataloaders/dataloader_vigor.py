@@ -26,18 +26,18 @@ torch.backends.cudnn.deterministic = True
 torch.use_deterministic_algorithms(mode=True, warn_only=True)
 
 
-GROUND_IMAGE_SIZE = ast.literal_eval(config.get("VIGOR", "GROUND_IMAGE_SIZE"))
-SATELLITE_IMAGE_SIZE = ast.literal_eval(config.get("VIGOR", "SATELLITE_IMAGE_SIZE"))
+ground_image_size = ast.literal_eval(config.get("VIGOR", "ground_image_size"))
+satellite_image_size = ast.literal_eval(config.get("VIGOR", "satellite_image_size"))
 
 
 # Define transformations
 transform_grd = transforms.Compose([
-    transforms.Resize(GROUND_IMAGE_SIZE),
+    transforms.Resize(ground_image_size),
     transforms.ToTensor()
 ])
 
 transform_sat = transforms.Compose([
-    transforms.Resize(SATELLITE_IMAGE_SIZE),
+    transforms.Resize(satellite_image_size),
     transforms.ToTensor()
 ])
 
@@ -125,7 +125,7 @@ class VIGORDataset(Dataset):
         return self.data_size
 
     def __getitem__(self, idx):
-        grd = self._load_image(self.grd_list[idx], default_size=GROUND_IMAGE_SIZE)
+        grd = self._load_image(self.grd_list[idx], default_size=ground_image_size)
         grd = self.grdimage_transform(grd)
         
         if self.random_orientation:
@@ -162,7 +162,7 @@ class VIGORDataset(Dataset):
         row_offset, col_offset = self.delta[idx, 0]
         
 
-        sat = self._load_image(self.sat_list[self.label[idx][0]], default_size=SATELLITE_IMAGE_SIZE)
+        sat = self._load_image(self.sat_list[self.label[idx][0]], default_size=satellite_image_size)
         width_raw, height_raw = sat.size[::-1]
         
         sat = self.satimage_transform(sat)

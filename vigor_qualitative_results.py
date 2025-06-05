@@ -35,16 +35,16 @@ import ast
 dataset_root = config["VIGOR"]["dataset_root"]
 label_root = config["VIGOR"]["label_root"]
 
-grd_bev_res = config.getint("VIGOR", "grd_bev_res")
-grd_height_res = config.getint("VIGOR", "grd_height_res")
-sat_bev_res = config.getint("VIGOR", "sat_bev_res")
-num_samples_matches = config.getint("VIGOR", "num_samples_matches")
-
 ground_image_size = ast.literal_eval(config.get("VIGOR", "ground_image_size"))
 satellite_image_size = ast.literal_eval(config.get("VIGOR", "satellite_image_size"))
 
 grid_size_h = config.getfloat("VIGOR", "grid_size_h") 
 grid_size_v = config.getfloat("VIGOR", "grid_size_v") 
+
+grd_bev_res = config.getint("Model", "grd_bev_res")
+grd_height_res = config.getint("Model", "grd_height_res")
+sat_bev_res = config.getint("Model", "sat_bev_res")
+num_samples_matches = config.getint("Model", "num_samples_matches")
 
 seed = config.getint("RandomSeed", "seed")
 eps = config.getfloat("Constants", "epsilon")
@@ -210,7 +210,7 @@ with torch.no_grad():
     # === Finalize and Save ===
     ax.legend(loc='upper right', framealpha=0.8, labelcolor='black', prop={'size': 15})
     ax.axis('off')
-    plt.savefig(os.path.join(results_dir, f'area_{idx}.png'), bbox_inches='tight', pad_inches=0)
+    plt.savefig(os.path.join(results_dir, f'{area}_{idx}.png'), bbox_inches='tight', pad_inches=0)
     plt.close()
 
 

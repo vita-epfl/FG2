@@ -20,12 +20,13 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-a', '--area', type=str, choices=('samearea','crossarea'), default='samearea')
 parser.add_argument('-b', '--batch_size', type=int, help='batch size', default=24)
 parser.add_argument('--random_orientation', choices=('True','False'), default='False')
+parser.add_argument('--epoch_to_resume', type=int, help='from which epoch to continue training', default=0)
 
 args = vars(parser.parse_args())
 area = args['area']
 batch_size = args['batch_size']
 random_orientation = args['random_orientation'] == 'True'
-
+epoch_to_resume = args['epoch_to_resume']
 
 # Load configuration
 import configparser
@@ -37,27 +38,19 @@ dataset_root = config["VIGOR"]["dataset_root"]
 label_root = config["VIGOR"]["label_root"]
 
 learning_rate = config.getfloat("VIGOR", "learning_rate")
-epoch_to_resume = config.getint("VIGOR", "epoch_to_resume")
-beta = config.getfloat("VIGOR", "beta") 
-
-grd_bev_res = config.getint("VIGOR", "grd_bev_res")
-grd_height_res = config.getint("VIGOR", "grd_height_res")
-sat_bev_res = config.getint("VIGOR", "sat_bev_res")
-num_samples_matches = config.getint("VIGOR", "num_samples_matches")
 
 ground_image_size = ast.literal_eval(config.get("VIGOR", "ground_image_size"))
-satellite_image_size = ast.literal_eval(config.get("VIGOR", "satellite_image_size"))
-
 grid_size_h = config.getfloat("VIGOR", "grid_size_h") 
 grid_size_v = config.getfloat("VIGOR", "grid_size_v") 
 
-th_soft_inlier = config.getfloat("VIGOR", "th_soft_inlier") 
-th_inlier = config.getfloat("VIGOR", "th_inlier") 
-num_samples_matches_ransac = config.getint("VIGOR", "num_samples_matches_ransac")
-num_corr_2d_2d = config.getint("VIGOR", "num_corr_2d_2d")
-it_matches = config.getint("VIGOR", "it_matches")
-it_RANSAC_procrustes = config.getint("VIGOR", "it_RANSAC_procrustes")
-num_ref_steps = config.getint("VIGOR", "num_ref_steps")
+grd_bev_res = config.getint("Model", "grd_bev_res")
+grd_height_res = config.getint("Model", "grd_height_res")
+sat_bev_res = config.getint("Model", "sat_bev_res")
+num_samples_matches = config.getint("Model", "num_samples_matches")
+
+beta = config.getfloat("Loss", "beta") 
+loss_grid_size = config.getfloat("Loss", "loss_grid_size") 
+num_virtual_point = config.getint("Loss", "num_virtual_point")
 
 seed = config.getint("RandomSeed", "seed")
 eps = config.getfloat("Constants", "epsilon")
@@ -123,7 +116,7 @@ global_step = 0
 # define a metric grid 
 metric_coord_sat_B = create_metric_grid(grid_size_h, sat_bev_res, batch_size).to(device)
 metric_coord_grd_B = create_metric_grid(grid_size_h, grd_bev_res, batch_size).to(device)
-metric_coord4loss = create_metric_grid(grid_size_h, grd_bev_res, 1).to(device)
+metric_coord4loss = create_metric_grid(loss_grid_size, num_virtual_point, 1).to(device)
 grd_indices_b = create_grid_indices(grd_bev_res, grd_bev_res).to(device)
 sat_indices_b = create_grid_indices(sat_bev_res, sat_bev_res).to(device)
 
@@ -170,7 +163,7 @@ for epoch in range(epoch_to_resume, 25):
         sat_selected = sat_idx_B[batch_idx, sampled_sat_idx, :]
         grd_selected = grd_idx_B[batch_idx, sampled_grd_idx, :]
 
-        loss_infonce = compute_infonce_loss(Rgt, tgt, score_orig, sampled_sat_idx, sampled_grd_idx, sat_selected, grd_selected)
+        loss_infonce = compute_infonce_loss(Rgt, tgt, score_orig, sat_selected, grd_selected)
         avg_loss = beta * loss_infonce.mean() + loss_vce.mean()
         
 
@@ -193,8 +186,8 @@ for epoch in range(epoch_to_resume, 25):
     # Evaluation
     print('Evaluating on validation set...')
     CVM_model.eval()
-    translation_errors = []
-    yaw_errors = []
+    translation_error = []
+    yaw_error = []
 
     with torch.no_grad():
         for data in val_dataloader:
@@ -225,7 +218,7 @@ for epoch in range(epoch_to_resume, 25):
             t = t / grid_size_h * sat_size
             offset = (t - tgt).abs().cpu().numpy()
             trans_error = np.sqrt(offset[:, 0, 0] ** 2 + offset[:, 0, 1] ** 2)
-            translation_errors.extend(trans_error)
+            translation_error.extend(trans_error)
 
             Rgt_np, R_np = Rgt.cpu().numpy(), R.cpu().numpy()
             for b in range(B):
@@ -242,14 +235,14 @@ for epoch in range(epoch_to_resume, 25):
                     print('Invalid yaw angle')
                     continue
                 yaw_diff = abs(yaw_pred - yaw_gt)
-                yaw_errors.append(min(yaw_diff, 360 - yaw_diff))
+                yaw_error.append(min(yaw_diff, 360 - yaw_diff))
 
     # Compute and log metrics
     results_dir = f'results/vigor/{label}/'
     os.makedirs(results_dir, exist_ok=True)
 
-    trans_mean, trans_median = np.mean(translation_errors), np.median(translation_errors)
-    yaw_mean, yaw_median = np.mean(yaw_errors), np.median(yaw_errors)
+    trans_mean, trans_median = np.mean(translation_error), np.median(translation_error)
+    yaw_mean, yaw_median = np.mean(yaw_error), np.median(yaw_error)
 
     print(f'Epoch {epoch}: Mean translation error: {trans_mean:.2f}, Median: {trans_median:.2f}')
     print(f'Epoch {epoch}: Mean yaw error: {yaw_mean:.2f}, Median: {yaw_median:.2f}')

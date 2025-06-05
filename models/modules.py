@@ -17,9 +17,10 @@ config.read("./config.ini")
 import ast
 
 ground_image_size = ast.literal_eval(config.get("VIGOR", "ground_image_size"))
-satellite_image_size = ast.literal_eval(config.get("VIGOR", "satellite_image_size"))
-eps = config.getfloat("Constants", "epsilon")
+kitti_grd_size = ast.literal_eval(config.get("KITTI", "ground_image_size"))
 
+
+eps = config.getfloat("Constants", "epsilon")
 
 seed = config.getint("RandomSeed", "seed")
 import random
@@ -222,3 +223,90 @@ class cross_attention(nn.Module):
         grd_bev = (weights * grd_3d).sum(3)
 
         return grd_bev.view(bs, -1, self.embed_dim) + residual, max_height_index
+
+class self_attention_kitti(nn.Module):
+    def __init__(self, device, num_horizontal, embed_dim=128):
+        super(self_attention_kitti, self).__init__()
+        self.device = device
+
+        self.embed_dim = embed_dim
+        self.num_horizontal = num_horizontal
+        
+        grd_row_self_ = np.linspace(0, 1, int(np.floor(self.num_horizontal/2))+1) 
+        grd_col_self_ = np.linspace(0, 1, num_horizontal) 
+        grd_row_self, grd_col_self = np.meshgrid(grd_row_self_, grd_col_self_, indexing='ij') 
+        
+        self.grd_reference_points = torch.stack((torch.tensor(grd_col_self), torch.tensor(grd_row_self)), -1).view(-1,2).unsqueeze(1).to(torch.float).to(device)        
+        
+        self.grd_spatial_shape = torch.tensor(([[int(np.floor(self.num_horizontal/2))+1, num_horizontal]])).to(device).long()
+        self.level_start_index = torch.tensor([0]).to(device)
+
+        self.grd_attention_self = MultiScaleDeformableAttention(embed_dims=embed_dim, num_heads=8, num_levels=1, num_points=4, 
+                                                           batch_first=True)
+
+    def forward(self, query):
+        bs = query.size()[0]
+        residual = query
+        
+        value = query
+        
+        grd_reference_points = self.grd_reference_points.unsqueeze(0).repeat(bs, 1, 1, 1)
+        grd_bev = self.grd_attention_self(query=query, value=value, reference_points=grd_reference_points, 
+                                            spatial_shapes=self.grd_spatial_shape, level_start_index=self.level_start_index)
+        
+        return grd_bev + residual
+
+        
+class cross_attention_kitti(nn.Module):
+    def __init__(self, device, num_horizontal, num_vertical, embed_dim, grid_size_h, grid_size_v):
+        super(cross_attention_kitti, self).__init__()
+        self.device = device
+
+        self.embed_dim = embed_dim
+        self.num_horizontal = num_horizontal
+        self.num_vertical = num_vertical
+
+        # define a 3D grid of point cloud
+        x_ = np.linspace(-grid_size_h/2, 0, int(np.floor(self.num_horizontal/2))+1)
+        y_ = np.linspace(-grid_size_h/2, grid_size_h/2, num_horizontal) 
+        z_ = np.linspace(-grid_size_v/2, grid_size_v/2, num_vertical) 
+        
+        grd_x, grd_y, grd_z = np.meshgrid(x_, y_, z_, indexing='ij') # 3D voxel grid with given number (horizontal and vertical) cells
+        self.grid_3d = torch.stack([torch.tensor(grd_y), torch.tensor(-grd_z), torch.tensor(-grd_x)], dim=-1).reshape(-1, 3).to(torch.float).to(device) # to align camera coordinate system, z pointing outwards, y pointing down, x pointing to the right
+        self.grd_spatial_shape_cross = torch.tensor(([[26, 88]])).to(device).long()
+        self.level_start_index = torch.tensor([0]).to(device)
+
+        self.grd_attention_cross = MultiScaleDeformableAttention(embed_dims=embed_dim, num_heads=8, num_levels=1, num_points=4, 
+                                                           batch_first=True)
+        self.projector = torch.nn.Linear(embed_dim, 1)
+
+    def forward(self, query, value, camera_k):
+        bs = query.size()[0]
+        residual = query
+
+        grid_3d = self.grid_3d.T.unsqueeze(0).repeat(bs, 1, 1)
+        projected_points = camera_k @ grid_3d
+        u = (projected_points[:, 0, :] / projected_points[:, 2, :] / kitti_grd_size[1]).view(bs, int(np.floor(self.num_horizontal/2))+1, self.num_horizontal, self.num_vertical)
+        v = (projected_points[:, 1, :] / projected_points[:, 2, :] / kitti_grd_size[0]).view(bs, int(np.floor(self.num_horizontal/2))+1, self.num_horizontal, self.num_vertical)
+
+        keep_index = torch.logical_and(torch.logical_and(u >= 0, u <= 1), torch.logical_and(v >= 0, v <= 1))
+        keep_index = keep_index.sum(-1).to(torch.bool)
+        
+        grd_bev_list = []
+        for i in range(self.num_vertical):
+            grd_reference_points = torch.stack((u[:,:,:,i], v[:,:,:,i]), -1).view(bs,-1,2).unsqueeze(2).to(torch.float)
+
+            grd_bev = self.grd_attention_cross(query=query, value=value, reference_points=grd_reference_points, 
+                                                spatial_shapes=self.grd_spatial_shape_cross, level_start_index=self.level_start_index)
+            
+            grd_bev_list.append(grd_bev.view(bs, int(np.floor(self.num_horizontal/2))+1, self.num_horizontal, self.embed_dim))
+            
+        grd_3d = torch.stack(grd_bev_list, dim=-1).permute(0,1,2,4,3)
+        
+        weights = torch.nn.functional.softmax(self.projector(grd_3d), dim=3)
+        max_height_index = torch.argmax(weights, dim=3)
+              
+        grd_bev = (weights * grd_3d).sum(3)
+
+
+        return grd_bev.view(bs, -1, self.embed_dim) + residual, max_height_index, keep_index

@@ -42,16 +42,22 @@ def weighted_procrustes_2d(A, B, w=None, use_weights=True, use_mask=False, eps=1
 
     return R, t, True
 
-def create_metric_grid(grid_size, res, batch_size):
-    x, y = np.linspace(-grid_size/2, grid_size/2, res), np.linspace(-grid_size/2, grid_size/2, res)
+def create_metric_grid(grid_size, res, batch_size, only_front=False):
+    if only_front: 
+        x = np.linspace(-grid_size/2, 0, int(np.floor(res/2))+1)
+    else:
+        x = np.linspace(-grid_size/2, grid_size/2, res)
+    y = np.linspace(-grid_size/2, grid_size/2, res)
     metric_x, metric_y = np.meshgrid(x, y, indexing='ij')
     metric_x, metric_y = torch.tensor(metric_x).flatten().unsqueeze(0).unsqueeze(-1), torch.tensor(metric_y).flatten().unsqueeze(0).unsqueeze(-1)
     metric_coord = torch.cat((metric_x, metric_y), -1).float()
     return metric_coord.repeat(batch_size, 1, 1)
 
-def create_grid_indices(rows, cols):
-    """Create homogeneous grid indices centered at (0,0)."""
-    row_vals = np.linspace(-(rows - 1) / 2, (rows - 1) / 2, rows)
+def create_grid_indices(rows, cols, only_front=False):
+    if only_front: 
+        row_vals = np.linspace(-(rows - 1) / 2, 0, int(np.floor(rows / 2)) + 1)
+    else:
+        row_vals = np.linspace(-(rows - 1) / 2, (rows - 1) / 2, rows)
     col_vals = np.linspace(-(cols - 1) / 2, (cols - 1) / 2, cols)
     row_grid, col_grid = np.meshgrid(row_vals, col_vals, indexing='ij')
 

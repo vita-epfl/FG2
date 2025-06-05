@@ -45,11 +45,6 @@ import ast
 dataset_root = config["VIGOR"]["dataset_root"]
 label_root = config["VIGOR"]["label_root"]
 
-grd_bev_res = config.getint("VIGOR", "grd_bev_res")
-grd_height_res = config.getint("VIGOR", "grd_height_res")
-sat_bev_res = config.getint("VIGOR", "sat_bev_res")
-num_samples_matches = config.getint("VIGOR", "num_samples_matches")
-
 ground_image_size = ast.literal_eval(config.get("VIGOR", "ground_image_size"))
 satellite_image_size = ast.literal_eval(config.get("VIGOR", "satellite_image_size"))
 
@@ -63,6 +58,11 @@ num_corr_2d_2d = config.getint("VIGOR", "num_corr_2d_2d")
 it_matches = config.getint("VIGOR", "it_matches")
 it_RANSAC_procrustes = config.getint("VIGOR", "it_RANSAC_procrustes")
 num_ref_steps = config.getint("VIGOR", "num_ref_steps")
+
+grd_bev_res = config.getint("Model", "grd_bev_res")
+grd_height_res = config.getint("Model", "grd_height_res")
+sat_bev_res = config.getint("Model", "sat_bev_res")
+num_samples_matches = config.getint("Model", "num_samples_matches")
 
 seed = config.getint("RandomSeed", "seed")
 eps = config.getfloat("Constants", "epsilon")
