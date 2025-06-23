@@ -168,8 +168,8 @@ class SatGrdDataset(Dataset):
                                            0, 1, CameraGPS_shift_left[1] / self.meter_per_pixel),
                                           resample=PIL.Image.BILINEAR) 
         # randomly generate shift
-        gt_shift_x = np.random.uniform(-1, 1)  # --> right as positive, parallel to the heading direction
-        gt_shift_y = np.random.uniform(-1, 1)  # --> up as positive, vertical to the heading direction
+        gt_shift_x = np.random.uniform(-1, 1)  # --> right as positive
+        gt_shift_y = np.random.uniform(-1, 1)  # --> up as positive
         
         sat_rand_shift = \
             sat_align_cam.transform(
@@ -311,8 +311,8 @@ class SatGrdDatasetTest(Dataset):
                                           resample=PIL.Image.BILINEAR)
         
         # load the shifts 
-        gt_shift_x = -float(gt_shift_x)  # --> right as positive, parallel to the heading direction
-        gt_shift_y = -float(gt_shift_y)  # --> up as positive, vertical to the heading direction
+        gt_shift_x = -float(gt_shift_x)  # --> right as positive
+        gt_shift_y = -float(gt_shift_y)  # --> up as positive
 
         sat_rand_shift = \
             sat_align_cam.transform(

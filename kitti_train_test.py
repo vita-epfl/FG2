@@ -145,8 +145,8 @@ def eval(CVM_model, test_set):
             Rgt = Rgt.cpu().detach().numpy()
             R = R.cpu().detach().numpy()
             for b in range(B):
-                loc_pred = [sat_size / 2 - tgt[b, 0, 1], sat_size / 2 - tgt[b, 0, 0]]
-                loc_gt = [sat_size / 2 - t[b, 0, 1], sat_size / 2 - t[b, 0, 0]]
+                loc_pred = np.array([sat_size / 2 - tgt[b, 0, 1], sat_size / 2 - tgt[b, 0, 0]])
+                loc_gt = np.array([sat_size / 2 - t[b, 0, 1], sat_size / 2 - t[b, 0, 0]])
 
                 distance = np.sqrt((loc_gt[0]-loc_pred[0])**2+(loc_gt[1]-loc_pred[1])**2) * test_set.meter_per_pixel
                 translation_error.append(distance)
@@ -162,10 +162,14 @@ def eval(CVM_model, test_set):
                 
                 yaw_error.append(np.min([diff, 360-diff]))
 
-                gt2pred_from_north = np.arctan2(np.abs(loc_gt[1]-loc_pred[1]), np.abs(loc_gt[0]-loc_pred[0])) * 180 / math.pi 
-                angle_diff = np.abs(yaw_gt-gt2pred_from_north)
-                longitudinal_error.append(np.abs(np.cos(angle_diff * np.pi/180) * distance))
-                lateral_error.append(np.abs(np.sin(angle_diff * np.pi/180) * distance))
+                delta = loc_pred - loc_gt
+                heading_vec = np.array([np.sin(np.deg2rad(yaw_gt)), np.cos(np.deg2rad(yaw_gt))])
+
+                longitudinal = np.dot(delta, heading_vec)
+                lateral = np.cross(heading_vec, delta)  
+
+                longitudinal_error.append(np.abs(longitudinal) * test_set.meter_per_pixel)
+                lateral_error.append(np.abs(lateral) * test_set.meter_per_pixel)
     
         return np.array(translation_error), np.array(yaw_error), np.array(longitudinal_error), np.array(lateral_error)
 
