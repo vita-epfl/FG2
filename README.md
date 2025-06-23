@@ -89,6 +89,24 @@ python vigor_train.py --area samearea -b 24 --random_orientation False
 python vigor_train.py --area samearea -b 24 --random_orientation True 
 ```
 
+## 🚗 KITTI  
+**Evaluation Results Updated**: We have revised our evaluation on the KITTI dataset. The updated results differ slightly from the CVPR version. A new ArXiv submission reflecting these changes will be available soon.
+
+| Setting       | Version     | Loc. Mean ↓ (m) | Loc. Median ↓ (m) | Lateral R@1m ↑ (%) | Lateral R@5m ↑ (%) | Long. R@1m ↑ (%) | Long. R@5m ↑ (%) | Orien. Mean ↓ (°) | Orien. Median ↓ (°) | Orien. R@1° ↑ (%) | Orien. R@5° ↑ (%) |
+|---------------|-------------|------------------|--------------------|---------------------|---------------------|-------------------|-------------------|---------------------|-----------------------|---------------------|---------------------|
+| Same-Area     | CVPR        | 0.75             | 0.52               | 99.73               | 100.00              | 86.99             | 98.75             | 1.28                | 0.74                  | 61.17               | 95.65               |
+| Same-Area     | Updated     | 0.74             | 0.51               | 95.84               | 99.66               | 92.74             | 99.05             | 0.93                | 0.67                  | 67.43               | 98.86               |
+| Cross-Area    | CVPR        | 7.45             | 4.03               | 89.46               | 99.80               | 12.42             | 55.73             | 3.33                | 1.88                  | 30.34               | 81.17               |
+| Cross-Area    | Updated     | 7.20             | 4.10               | 38.44               | 85.84               | 22.28             | 61.24            | 3.61                | 2.37                  | 22.89               | 77.84               |
+
+**Training:**
+```bash
+python kitti_train_test.py -b 24 -t train
+```
+**Test:**
+```bash
+python kitti_train_test.py -b 24 -t test
+```
 
 
 ## ✅ To-Do
