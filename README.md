@@ -28,6 +28,25 @@ If you encounter errors related to NumPy 2.x, run:
 pip install "numpy<2"
 ```
 
+### VIGOR Dataset
+
+Download the dataset from the [official VIGOR repository](https://github.com/Jeff-Zilence/VIGOR/blob/main/data/DATASET.md).
+
+**Update the config:**  
+In `config.ini`, set `dataset_root` under VIGOR entry to the path where you placed the VIGOR dataset, for example:
+
+dataset_root = /home/username/VIGOR
+
+**Corrected labels (recommended):**  
+Download the corrected label splits from [SliceMatch (VIGOR_corrected_labels)](https://github.com/tudelft-iv/SliceMatch/tree/main/VIGOR_corrected_labels), and follow their instructions to replace the original `splits` folder with the downloaded `splits__corrected` folder.
+
+### KITTI Dataset
+
+Download and structure the dataset according to [https://github.com/YujiaoShi/HighlyAccurate].
+In `config.ini`, set `dataset_root` under KITTI entry to the path where you placed the KITTI dataset, for example:
+
+dataset_root = /home/username/KITTI
+
 ---
 
 
