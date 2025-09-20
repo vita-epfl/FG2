@@ -114,9 +114,9 @@ python vigor_train.py --area samearea -b 24 --random_orientation True
 | Setting       | Version     | Loc. Mean ↓ (m) | Loc. Median ↓ (m) | Lateral R@1m ↑ (%) | Lateral R@5m ↑ (%) | Long. R@1m ↑ (%) | Long. R@5m ↑ (%) | Orien. Mean ↓ (°) | Orien. Median ↓ (°) | Orien. R@1° ↑ (%) | Orien. R@5° ↑ (%) |
 |---------------|-------------|------------------|--------------------|---------------------|---------------------|-------------------|-------------------|---------------------|-----------------------|---------------------|---------------------|
 | Same-Area     | CVPR        | 0.75             | 0.52               | 99.73               | 100.00              | 86.99             | 98.75             | 1.28                | 0.74                  | 61.17               | 95.65               |
-| Same-Area     | Updated     | 0.74             | 0.51               | 95.84               | 99.66               | 92.74             | 99.05             | 0.93                | 0.67                  | 67.43               | 98.86               |
+| Same-Area     | Updated     | 0.75             | 0.51               | 95.81               | 99.66               | 92.50             | 99.05             | 0.93                | 0.66                  | 67.27               | 98.91               |
 | Cross-Area    | CVPR        | 7.45             | 4.03               | 89.46               | 99.80               | 12.42             | 55.73             | 3.33                | 1.88                  | 30.34               | 81.17               |
-| Cross-Area    | Updated     | 7.20             | 4.10               | 38.44               | 85.84               | 22.28             | 61.24            | 3.61                | 2.37                  | 22.89               | 77.84               |
+| Cross-Area    | Updated     | 7.31             | 4.15               | 37.89               | 85.65               | 21.98             | 60.77            | 3.62                | 2.37                  | 23.03               | 77.84               |
 
 **Training:**
 ```bash
@@ -145,12 +145,11 @@ Many thanks to the authors for their outstanding work and for sharing it with th
 
 ## Citation
 ```bibtex
-@InProceedings{Xia_2025_CVPR,
-    author    = {Xia, Zimin and Alahi, Alexandre},
-    title     = {{FG\textsuperscript{2}}: Fine-Grained Cross-View Localization by Fine-Grained Feature Matching},
-    booktitle = {Proceedings of the Computer Vision and Pattern Recognition Conference (CVPR)},
-    month     = {June},
-    year      = {2025},
-    pages     = {6362-6372}
+@inproceedings{xia2025fg,
+  title={FG\^{} 2: Fine-Grained Cross-View Localization by Fine-Grained Feature Matching},
+  author={Xia, Zimin and Alahi, Alexandre},
+  booktitle={Proceedings of the Computer Vision and Pattern Recognition Conference},
+  pages={6362--6372},
+  year={2025}
 }
 ```
