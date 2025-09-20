@@ -9,7 +9,7 @@ import math
 import random
 from torch.utils.data import DataLoader
 
-from dataloaders.dataloader_kitti import train_set, test1_set, test2_set
+from dataloaders.dataloader_kitti import train_set, test1_set, test2_set, get_meter_per_pixel
 from models.model_kitti import CVM
 from models.modules import DinoExtractor
 from utils.utils import weighted_procrustes_2d, create_metric_grid, create_grid_indices, save_metric
@@ -75,6 +75,8 @@ test1_loader = DataLoader(test1_set, batch_size=batch_size, shuffle=False, pin_m
 test2_loader = DataLoader(test2_set, batch_size=batch_size, shuffle=False, pin_memory=True,
                               num_workers=num_thread_workers, drop_last=False)
 
+meter_per_pixel = get_meter_per_pixel()
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 "The device is: {}".format(device)
 
@@ -139,16 +141,17 @@ def eval(CVM_model, test_set):
                 print('t is None')
                 continue
 
-            t = (t / grid_size_h * sat_size).cpu().detach().numpy()
+            # Scale to pixel units
+            t   = (t / grid_size_h * sat_size).cpu().detach().numpy()   # [B,1,2] = [y_forward, x_lateral]
             tgt = tgt.cpu().detach().numpy()
-    
             Rgt = Rgt.cpu().detach().numpy()
-            R = R.cpu().detach().numpy()
+            R   = R.cpu().detach().numpy()
+            
             for b in range(B):
-                loc_pred = np.array([sat_size / 2 - tgt[b, 0, 1], sat_size / 2 - tgt[b, 0, 0]])
-                loc_gt = np.array([sat_size / 2 - t[b, 0, 1], sat_size / 2 - t[b, 0, 0]])
+                loc_pred = np.array([sat_size / 2 - t[b, 0, 1], sat_size / 2 - t[b, 0, 0]])
+                loc_gt = np.array([sat_size / 2 - tgt[b, 0, 1], sat_size / 2 - tgt[b, 0, 0]])
 
-                distance = np.sqrt((loc_gt[0]-loc_pred[0])**2+(loc_gt[1]-loc_pred[1])**2) * test_set.meter_per_pixel
+                distance = np.sqrt((loc_gt[0]-loc_pred[0])**2+(loc_gt[1]-loc_pred[1])**2) * meter_per_pixel
                 translation_error.append(distance)
                 
                 cos = R[b,0,0]
@@ -168,8 +171,8 @@ def eval(CVM_model, test_set):
                 longitudinal = np.dot(delta, heading_vec)
                 lateral = np.cross(heading_vec, delta)  
 
-                longitudinal_error.append(np.abs(longitudinal) * test_set.meter_per_pixel)
-                lateral_error.append(np.abs(lateral) * test_set.meter_per_pixel)
+                longitudinal_error.append(np.abs(longitudinal) * meter_per_pixel)
+                lateral_error.append(np.abs(lateral) * meter_per_pixel)
     
         return np.array(translation_error), np.array(yaw_error), np.array(longitudinal_error), np.array(lateral_error)
 
