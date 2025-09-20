@@ -90,6 +90,7 @@ metric_coord4loss = create_metric_grid(loss_grid_size, num_virtual_point, 1).to(
 grd_indices_b = create_grid_indices(grd_bev_res, grd_bev_res, only_front=True).to(device)
 sat_indices_b = create_grid_indices(sat_bev_res, sat_bev_res).to(device)
 
+print('')
 def eval(CVM_model, test_set):
     if test_set == 'test1':
         test_set = test1_set
@@ -148,8 +149,8 @@ def eval(CVM_model, test_set):
             R   = R.cpu().detach().numpy()
             
             for b in range(B):
-                loc_pred = np.array([sat_size / 2 - t[b, 0, 1], sat_size / 2 - t[b, 0, 0]])
-                loc_gt = np.array([sat_size / 2 - tgt[b, 0, 1], sat_size / 2 - tgt[b, 0, 0]])
+                loc_pred = [sat_size / 2 - t[b, 0, 1], sat_size / 2 - t[b, 0, 0]]
+                loc_gt = [sat_size / 2 - tgt[b, 0, 1], sat_size / 2 - tgt[b, 0, 0]]
 
                 distance = np.sqrt((loc_gt[0]-loc_pred[0])**2+(loc_gt[1]-loc_pred[1])**2) * meter_per_pixel
                 translation_error.append(distance)
@@ -164,15 +165,23 @@ def eval(CVM_model, test_set):
                 diff = np.abs(yaw - yaw_gt)
                 
                 yaw_error.append(np.min([diff, 360-diff]))
-
-                delta = loc_pred - loc_gt
-                heading_vec = np.array([np.sin(np.deg2rad(yaw_gt)), np.cos(np.deg2rad(yaw_gt))])
-
-                longitudinal = np.dot(delta, heading_vec)
-                lateral = np.cross(heading_vec, delta)  
-
-                longitudinal_error.append(np.abs(longitudinal) * meter_per_pixel)
-                lateral_error.append(np.abs(lateral) * meter_per_pixel)
+                
+                e = np.array(loc_pred, dtype=float) - np.array(loc_gt, dtype=float)
+    
+                # (0=up, 90=left)
+                theta = np.deg2rad(-yaw_gt)
+                
+                # Unit vectors tied to GT heading:
+                # forward (longitudinal) and left-normal (lateral)
+                u_long = np.array([-np.sin(theta),  np.cos(theta)])   # forward
+                u_lat  = np.array([-np.cos(theta), -np.sin(theta)])   # left
+                
+                # Project to get components (in meters)
+                err_longitudinal = np.abs(float(e @ u_long) * meter_per_pixel)
+                err_lateral      = np.abs(float(e @ u_lat)  * meter_per_pixel)
+                
+                longitudinal_error.append(err_longitudinal)
+                lateral_error.append(err_lateral)
     
         return np.array(translation_error), np.array(yaw_error), np.array(longitudinal_error), np.array(lateral_error)
 
