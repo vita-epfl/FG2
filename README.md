@@ -145,10 +145,12 @@ Many thanks to the authors for their outstanding work and for sharing it with th
 
 ## Citation
 ```bibtex
-@article{xia2025fg,
-  title={FG\textsuperscript{2}: Fine-Grained Cross-View Localization by Fine-Grained Feature Matching},
-  author={Xia, Zimin and Alahi, Alexandre},
-  journal={arXiv preprint arXiv:2503.18725},
-  year={2025}
+@InProceedings{Xia_2025_CVPR,
+    author    = {Xia, Zimin and Alahi, Alexandre},
+    title     = {{FG\textsuperscript{2}}: Fine-Grained Cross-View Localization by Fine-Grained Feature Matching},
+    booktitle = {Proceedings of the Computer Vision and Pattern Recognition Conference (CVPR)},
+    month     = {June},
+    year      = {2025},
+    pages     = {6362-6372}
 }
 ```
