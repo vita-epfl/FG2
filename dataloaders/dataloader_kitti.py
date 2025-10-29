@@ -161,8 +161,7 @@ class SatGrdDataset(Dataset):
 
             grd_left_imgs = torch.cat([grd_left_imgs, grd_img_left.unsqueeze(0)], dim=0)
 
-                    
-        sat_rot = sat_map.rotate((90-heading) / np.pi * 180) # make the up direction the vehicle heading
+        sat_rot = sat_map.rotate(90-heading / np.pi * 180) # make the up direction the vehicle heading
         sat_align_cam = sat_rot.transform(sat_rot.size, PIL.Image.AFFINE,
                                           (1, 0, CameraGPS_shift_left[0] / self.meter_per_pixel,
                                            0, 1, CameraGPS_shift_left[1] / self.meter_per_pixel),

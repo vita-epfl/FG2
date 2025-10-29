@@ -90,7 +90,6 @@ metric_coord4loss = create_metric_grid(loss_grid_size, num_virtual_point, 1).to(
 grd_indices_b = create_grid_indices(grd_bev_res, grd_bev_res, only_front=True).to(device)
 sat_indices_b = create_grid_indices(sat_bev_res, sat_bev_res).to(device)
 
-print('')
 def eval(CVM_model, test_set):
     if test_set == 'test1':
         test_set = test1_set
@@ -220,7 +219,7 @@ if train_or_test == 'train':
             sat = sat.to(device)
             camera_k = camera_k.to(device)
             tgt = tgt.to(device) 
-            Rgt = Rgt.to(device)      
+            Rgt = Rgt.to(device)
 
             with torch.no_grad():
                 grd_feature = shared_feature_extractor(grd)
@@ -254,13 +253,11 @@ if train_or_test == 'train':
             grd_indices_B = grd_indices_b.repeat(B,1,1)
             grd_indices_B_seleted = grd_indices_B[batch_idx, sampled_idx_grd, :]
     
-    
-            # loss_infonce = compute_infonce_loss_kitti(Rgt, tgt, matching_score_original, sat_indices_B_seleted, grd_indices_B_seleted)
+            loss_infonce = compute_infonce_loss_kitti(Rgt, tgt, matching_score_original, sat_indices_B_seleted, grd_indices_B_seleted)
             loss_vce = compute_vce_loss(metric_coord4loss, Rgt, tgt, R, t)
-            avg_loss = loss_vce.mean()
         
-            # avg_loss = beta * loss_infonce.mean() + loss_vce.mean()
-    
+            avg_loss = beta * loss_infonce.mean() + loss_vce.mean()
+   
             if global_step % 100 == 0:
                 print(f'Epoch [{epoch}] Step [{global_step}] Loss: {avg_loss.item():.4f}')
     
