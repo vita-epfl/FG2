@@ -41,7 +41,8 @@ class CVM(nn.Module):
         self.dustbin_score = nn.Parameter(torch.tensor(1.))
 
         ### grd
-        self.grd_grid_queries = nn.Parameter(data=torch.rand(grd_bev_res, grd_bev_res, embed_dim), requires_grad=True).to(device)
+        # Fixed query; non-persistent for compatibility with released checkpoints.
+        self.register_buffer("grd_grid_queries", torch.rand(grd_bev_res, grd_bev_res, embed_dim).to(device), persistent=False)
 
         self.grd_attention_self1 = self_attention(device, grd_bev_res, embed_dim)
         self.grd_attention_cross1 = cross_attention(device, grd_bev_res, grd_height_res, embed_dim, grid_size_h, grid_size_v)
